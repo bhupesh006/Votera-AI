@@ -1,3 +1,4 @@
+// Using fallback lookup + Google Maps suggestion for real-world usability
 export function fakeBoothLookup(pincode) {
   const data = {
     "638505": "Government Higher Secondary School, Anthiyur",

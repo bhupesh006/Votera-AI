@@ -28,3 +28,9 @@ export function updateState(intent, input) {
 export function setLastResponse(response) {
   userState.lastResponse = response;
 }
+
+export function setState(newState) {
+  if (newState) {
+    userState = { ...userState, ...newState };
+  }
+}

@@ -34,6 +34,22 @@ Many potential voters, especially first-time voters, find the election preparati
 4. Fallbacks cascade to Gemini if users input unstructured assertions.
 5. Location inputs dynamically invoke `mapsService.js` at the `HAS_ID_NO_BOOTH` state boundary exclusively.
 
+## Google Services Used
+- **Firebase:** Provides persistent state storage across sessions using Firestore. `saveUserState` and `loadUserState` ensure the user's progress is never lost.
+- **Gemini:** Used exclusively for conversational rephrasing of final assistant responses to ensure a natural, varied user experience while strictly maintaining logic boundaries.
+- **Google Maps:** Integrated as a location assistance fallback, providing guidance to nearby polling booths or government facilities.
+
+## Testing
+- **Basic Tests:** Located in `test/test_basic.js`, using native `console.assert` for zero-dependency validation.
+- **Validated Logic:**
+  - Intent detection for core voting queries.
+  - Decision engine response accuracy based on state.
+  - State update consistency (e.g., registration confirmation).
+
+## Performance & Efficiency
+- **Centralized Templates:** All response strings are stored in a `RESPONSES` constant in `decisionEngine.js` to reduce memory overhead and string duplication.
+- **Lightweight Architecture:** The project maintains a tiny footprint (<1MB) by avoiding heavy frameworks and using clean separation of concerns.
+
 ## Accessibility
 - Application relies strictly on Semantic HTML (`<main>`, `<header>`).
 - Interactive inputs and submissions deploy descriptive `aria-label`s.
@@ -45,4 +61,4 @@ Many potential voters, especially first-time voters, find the election preparati
 
 ## Assumptions
 - Uses Google Services (simulate locally if `.env` keys aren't provisioned by developer).
-- Since extreme minimal repository sizing (<10MB) is targeted, monolithic interface frameworks are deliberately eschewed in favor of plain DOM manipulations.
+- Since extreme minimal repository sizing (<1MB) is targeted, monolithic interface frameworks are deliberately eschewed in favor of plain DOM manipulations.
