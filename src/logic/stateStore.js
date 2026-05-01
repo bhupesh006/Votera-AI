@@ -3,7 +3,8 @@ let userState = {
   hasVoterId: false,
   knowsBooth: false,
   lastIntent: null,
-  lastResponse: null
+  lastResponse: null,
+  messages: []
 };
 
 export function getState() {
@@ -33,4 +34,8 @@ export function setState(newState) {
   if (newState) {
     userState = { ...userState, ...newState };
   }
+}
+
+export function addMessageToHistory(role, text) {
+  userState.messages.push({ role, text });
 }

@@ -1,6 +1,6 @@
 import './style.css';
 import { detectIntent } from './logic/intentDetector.js';
-import { getState, updateState, setLastResponse, setState } from './logic/stateStore.js';
+import { getState, updateState, setLastResponse, setState, addMessageToHistory } from './logic/stateStore.js';
 import { handleIntent } from './logic/decisionEngine.js';
 import { rephrase as geminiRephrase } from './services/geminiService.js';
 import { saveUserState, loadUserState } from './services/firebaseService.js';
@@ -13,14 +13,21 @@ const submitBtn = document.getElementById('submitBtn');
 
 const sessionId = "guest_user_1";
 
+// Persisting user state using Firebase for session continuity
 async function startApp() {
   const savedState = await loadUserState(sessionId);
   if (savedState) {
     setState(savedState);
+    const state = getState();
+    if (state.messages && state.messages.length > 0) {
+      state.messages.forEach(msg => renderMessage(chatContainer, msg.role, msg.text));
+      return; // Skip init message if history exists
+    }
   }
 
   const initMessage = "I can help with voter registration, voter ID, polling booth location, and the voting process. What would you like to know?";
   renderMessage(chatContainer, 'assistant', initMessage);
+  addMessageToHistory('assistant', initMessage);
 }
 
 chatForm.addEventListener('submit', async (e) => {
@@ -29,6 +36,7 @@ chatForm.addEventListener('submit', async (e) => {
   if (!text) return;
 
   renderMessage(chatContainer, 'user', text);
+  addMessageToHistory('user', text);
   userInput.value = '';
   toggleInputState(userInput, submitBtn, true);
 
@@ -52,10 +60,8 @@ chatForm.addEventListener('submit', async (e) => {
     }
     setLastResponse(rawResponse);
 
-    // Save state after interaction
-    await saveUserState(sessionId, userState);
-
     // 5. Gemini Rephrase + Artificial UX Delay for animation feel
+    // Gemini is used strictly for response rephrasing to improve conversational quality
     const [finalMessage] = await Promise.all([
       geminiRephrase(rawResponse),
       new Promise(resolve => setTimeout(resolve, 800)) // Guarantee at least 800ms of animation
@@ -64,6 +70,10 @@ chatForm.addEventListener('submit', async (e) => {
     // 6. Render
     removeTypingIndicator();
     renderMessage(chatContainer, 'assistant', finalMessage);
+    addMessageToHistory('assistant', finalMessage);
+
+    // Save final state including messages
+    await saveUserState(sessionId, getState());
 
   } catch (err) {
     console.error(err);

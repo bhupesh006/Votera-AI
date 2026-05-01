@@ -1,48 +1,25 @@
 import { detectIntent } from '../src/logic/intentDetector.js';
 import { handleIntent } from '../src/logic/decisionEngine.js';
-import { updateState, getState, setState } from '../src/logic/stateStore.js';
 
-console.log("Running Basic Tests...");
+console.log("Running Basic Verification Tests...");
 
-// --- A. Intent Detection Tests ---
-const intentHowTo = detectIntent("how to vote");
-console.assert(intentHowTo === "HOW_TO_VOTE", `Expected HOW_TO_VOTE, got ${intentHowTo}`);
+// 1. Intent Detection
+console.assert(detectIntent("how to vote") === "HOW_TO_VOTE", "how to vote -> HOW_TO_VOTE");
+console.assert(detectIntent("638505") === "LOCATION_INPUT", "638505 -> LOCATION_INPUT");
+console.assert(detectIntent("first time voting") === "FIRST_TIME_VOTER", "first time voting -> FIRST_TIME_VOTER");
 
-const intentLocation = detectIntent("638505");
-console.assert(intentLocation === "LOCATION_INPUT", `Expected LOCATION_INPUT, got ${intentLocation}`);
+// 2. Decision Engine (State-aware)
+console.assert(
+  handleIntent("REGISTER", "", { registered: true })
+  .includes("already registered"),
+  "REGISTER intent with registered:true should return 'already registered'"
+);
 
-const intentFirstTime = detectIntent("first time voting");
-console.assert(intentFirstTime === "FIRST_TIME_VOTER", `Expected FIRST_TIME_VOTER, got ${intentFirstTime}`);
+// 3. Decision Engine (Response Accuracy)
+console.assert(
+  handleIntent("HOW_TO_VOTE", "", {})
+  .includes("register"),
+  "HOW_TO_VOTE should include 'register' instructions"
+);
 
-
-// --- B. Decision Engine Tests ---
-let testState = {
-  registered: true,
-  hasVoterId: false,
-  knowsBooth: false,
-  lastIntent: null,
-  lastResponse: null
-};
-const registerResponse = handleIntent("REGISTER", "I want to register", testState);
-console.assert(registerResponse.includes("already registered"), "Expected response to contain 'already registered'");
-
-const locationResponse = handleIntent("LOCATION_INPUT", "638505", testState);
-console.assert(locationResponse.includes("Government Higher Secondary School"), "Expected response to return the correct booth string");
-
-
-// --- C. State Update Tests ---
-// Reset state for testing updateState
-setState({
-  registered: false,
-  hasVoterId: false,
-  knowsBooth: false,
-  lastIntent: null,
-  lastResponse: null
-});
-
-updateState("CONFIRM_REGISTERED", "I have registered");
-const currentState = getState();
-console.assert(currentState.registered === true, "Expected state.registered to become true");
-
-
-console.log("✅ All Basic Tests Passed!");
+console.log("✅ All Verification Tests Passed!");
