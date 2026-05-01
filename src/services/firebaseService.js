@@ -27,8 +27,9 @@ export async function saveUserState(sessionId, stateData) {
   try {
     const docRef = doc(db, 'users', sessionId);
     await setDoc(docRef, stateData, { merge: true });
+    console.log('✅ State saved to Firebase successfully');
   } catch (error) {
-    console.error('Firebase save error:', error);
+    console.error('❌ Firebase save error:', error);
   }
 }
 
@@ -37,10 +38,14 @@ export async function loadUserState(sessionId) {
   try {
     const docRef = doc(db, 'users', sessionId);
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) return docSnap.data();
+    if (docSnap.exists()) {
+      console.log('✅ State loaded from Firebase');
+      return docSnap.data();
+    }
+    console.log('ℹ️ No existing state found in Firebase');
     return null;
   } catch (error) {
-    console.error('Firebase load error:', error);
+    console.error('❌ Firebase load error:', error);
     return null;
   }
 }

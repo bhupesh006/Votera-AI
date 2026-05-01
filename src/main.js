@@ -11,7 +11,11 @@ const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const submitBtn = document.getElementById('submitBtn');
 
-const sessionId = "guest_user_1";
+let sessionId = localStorage.getItem('votera_session_id');
+if (!sessionId) {
+  sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem('votera_session_id', sessionId);
+}
 
 // Persisting user state using Firebase for session continuity
 async function startApp() {
