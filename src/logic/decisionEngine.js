@@ -81,7 +81,9 @@ export function handleIntent(intent, input, userState) {
       return userState.knowsBooth ? RESPONSES.KNOWS_BOOTH_ALREADY : RESPONSES.FIND_BOOTH;
 
     case "LOCATION_INPUT":
-      const booth = fakeBoothLookup(input);
+      const pincodeMatch = input.match(/\d{5,6}/);
+      const pincode = pincodeMatch ? pincodeMatch[0] : "";
+      const booth = fakeBoothLookup(pincode);
 
       if (booth.found) {
         return `Your polling booth is ${booth.name}. You can view it on [Google Maps](${booth.mapUrl}). You are ready to vote 🎉`;
