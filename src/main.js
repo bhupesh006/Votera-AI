@@ -20,8 +20,18 @@ if (!sessionId) {
 
 // Persisting user state using Firebase for session continuity
 async function startApp() {
+  renderMessage(chatContainer, 'system', 'Connecting to Votera AI...');
+  
   try {
-    const savedState = await Logger.measure("Firebase Load", () => loadUserState(sessionId));
+    // Race the Firebase load against a 2.5s timeout
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2500));
+    const savedState = await Promise.race([
+      Logger.measure("Firebase Load", () => loadUserState(sessionId)),
+      timeout
+    ]);
+
+    chatContainer.innerHTML = ''; // Clear "Connecting..." message
+
     if (savedState) {
       setState(savedState);
       const state = getState();
@@ -32,7 +42,8 @@ async function startApp() {
       }
     }
   } catch (err) {
-    Logger.warn("Could not load previous session: " + err.message);
+    chatContainer.innerHTML = ''; // Clear "Connecting..." message
+    Logger.warn("Starting fresh session (History load skipped or timed out)");
   }
 
   const initMessage = "I can help with voter registration, voter ID, polling booth location, and the voting process. What would you like to know?";

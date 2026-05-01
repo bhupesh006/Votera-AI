@@ -145,6 +145,20 @@ header p {
   text-decoration: underline;
 }
 
+/* System Status Message */
+.message.system {
+  justify-content: center;
+}
+
+.message.system .message-content {
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.8;
+}
+
 /* Input Area - Floating Glassmorphic */
 .chat-input-area {
   position: absolute;
