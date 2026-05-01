@@ -32,6 +32,14 @@ const RESPONSES = {
 };
 
 // Only responsible for mapping intent and state to a response string
+/**
+ * Maps a detected intent and current user state to a specific response string.
+ * This includes progressive guidance to lead the user toward 100% readiness.
+ * @param {string} intent - The detected intent key.
+ * @param {string} input - The original raw user input.
+ * @param {Object} userState - The current state of the user.
+ * @returns {string} The assistant's response.
+ */
 export function handleIntent(intent, input, userState) {
   // 1. Readiness Detection
   if (userState.registered && userState.hasVoterId && userState.knowsBooth) {

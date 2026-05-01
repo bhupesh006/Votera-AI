@@ -19,14 +19,18 @@ if (!sessionId) {
 
 // Persisting user state using Firebase for session continuity
 async function startApp() {
-  const savedState = await loadUserState(sessionId);
-  if (savedState) {
-    setState(savedState);
-    const state = getState();
-    if (state.messages && state.messages.length > 0) {
-      state.messages.forEach(msg => renderMessage(chatContainer, msg.role, msg.text));
-      return; // Skip init message if history exists
+  try {
+    const savedState = await loadUserState(sessionId);
+    if (savedState) {
+      setState(savedState);
+      const state = getState();
+      if (state.messages && state.messages.length > 0) {
+        state.messages.forEach(msg => renderMessage(chatContainer, msg.role, msg.text));
+        return; // Skip init message if history exists
+      }
     }
+  } catch (err) {
+    console.warn("Could not load previous session:", err);
   }
 
   const initMessage = "I can help with voter registration, voter ID, polling booth location, and the voting process. What would you like to know?";

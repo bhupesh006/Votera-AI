@@ -1,19 +1,29 @@
+/**
+ * Analyzes raw user input to determine the underlying intent.
+ * @param {string} input - The raw text input from the user.
+ * @returns {string} The detected intent key.
+ */
 export function detectIntent(input) {
   const text = input.toLowerCase();
 
-  // 1. LOCATION_INPUT (pincode ONLY, must be isolated first to prevent misfires)
-  if (/^\s*\d{5,6}\s*$/.test(text) || /\b\d{5,6}\b/.test(text) && text.split(" ").length < 4) {
+  // 1. LOCATION_INPUT (detects pincodes even inside sentences)
+  if (/\b\d{5,6}\b/.test(text)) {
     return "LOCATION_INPUT";
   }
 
-  // 2. USER PROGRESS (CONFIRMATIONS)
-  if (text.includes("i have registered") || text.includes("already registered") || text.includes("am registered") || text.includes("done register")) {
+  // 2. USER PROGRESS (CONFIRMATIONS) - Improved with more flexible keywords
+  const hasRegistered = /registered|already registered|am registered|done register/i.test(text);
+  const confirmedRegistration = /i have|i've|already|done/i.test(text) && hasRegistered;
+
+  if (confirmedRegistration || text.includes("i am registered")) {
     return "CONFIRM_REGISTERED";
   }
-  if (text.includes("have voter id") || text.includes("got voter id") || text.includes("got id") || text.includes("have id")) {
+
+  if (/\b(have|got|my|own)\b.*\b(id|voter id|card|epic)\b/i.test(text) && !text.includes("lost")) {
     return "CONFIRM_HAS_ID";
   }
-  if (text.includes("know my booth") || text.includes("found booth") || text.includes("know booth")) {
+
+  if (/know|found|got|have/i.test(text) && /booth|location|center/i.test(text)) {
     return "CONFIRM_KNOWS_BOOTH";
   }
 
