@@ -49,3 +49,25 @@ export async function loadUserState(sessionId) {
     return null;
   }
 }
+
+/**
+ * Logs a custom event to Firestore for basic analytics.
+ * @param {string} sessionId - Unique session identifier.
+ * @param {string} eventName - Name of the event.
+ * @param {Object} metadata - Additional event data.
+ */
+export async function logEvent(sessionId, eventName, metadata = {}) {
+  if (!db) return;
+  try {
+    const eventRef = doc(db, 'events', `${sessionId}_${Date.now()}`);
+    await setDoc(eventRef, {
+      sessionId,
+      eventName,
+      timestamp: new Date().toISOString(),
+      ...metadata
+    });
+    console.log(`📊 Event Logged: ${eventName}`);
+  } catch (error) {
+    console.error('❌ Analytics error:', error);
+  }
+}

@@ -3,8 +3,9 @@ import { detectIntent } from './logic/intentDetector.js';
 import { getState, updateState, setLastResponse, setState, addMessageToHistory } from './logic/stateStore.js';
 import { handleIntent } from './logic/decisionEngine.js';
 import { rephrase as geminiRephrase } from './services/geminiService.js';
-import { saveUserState, loadUserState } from './services/firebaseService.js';
+import { saveUserState, loadUserState, logEvent } from './services/firebaseService.js';
 import { renderMessage, toggleInputState, showTypingIndicator, removeTypingIndicator } from './components/chatInterface.js';
+import Logger from './utils/logger.js';
 
 const chatContainer = document.getElementById('chatContainer');
 const chatForm = document.getElementById('chatForm');
@@ -20,17 +21,18 @@ if (!sessionId) {
 // Persisting user state using Firebase for session continuity
 async function startApp() {
   try {
-    const savedState = await loadUserState(sessionId);
+    const savedState = await Logger.measure("Firebase Load", () => loadUserState(sessionId));
     if (savedState) {
       setState(savedState);
       const state = getState();
       if (state.messages && state.messages.length > 0) {
         state.messages.forEach(msg => renderMessage(chatContainer, msg.role, msg.text));
-        return; // Skip init message if history exists
+        Logger.success(`Restored ${state.messages.length} messages from history.`);
+        return; 
       }
     }
   } catch (err) {
-    console.warn("Could not load previous session:", err);
+    Logger.warn("Could not load previous session: " + err.message);
   }
 
   const initMessage = "I can help with voter registration, voter ID, polling booth location, and the voting process. What would you like to know?";
@@ -53,7 +55,9 @@ chatForm.addEventListener('submit', async (e) => {
     showTypingIndicator(chatContainer);
 
     // 1. Detect Intent
-    const intent = detectIntent(text);
+    const intent = await Logger.measure("Intent Detection", () => detectIntent(text));
+    Logger.info(`Detected Intent: ${intent}`);
+    logEvent(sessionId, "intent_detected", { intent, input_length: text.length });
 
     // 2. Update State
     updateState(intent, text);
@@ -81,7 +85,7 @@ chatForm.addEventListener('submit', async (e) => {
     addMessageToHistory('assistant', finalMessage);
 
     // Save final state including messages
-    await saveUserState(sessionId, getState());
+    await Logger.measure("Firebase Save", () => saveUserState(sessionId, getState()));
 
   } catch (err) {
     console.error(err);

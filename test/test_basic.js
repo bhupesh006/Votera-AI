@@ -16,7 +16,10 @@ const intentTests = [
   { input: "what documents should I bring?", expected: "WHAT_TO_CARRY" },
   { input: "lost my voter card", expected: "VOTER_ID_LOST" },
   { input: "am I eligible?", expected: "ELIGIBILITY" },
-  { input: "random gibberish text", expected: "GENERAL_HELP" }
+  { input: "HOW DO I VOTEEEE", expected: "HOW_TO_VOTE" },
+  { input: "registration portal link please", expected: "REGISTRATION_LINK" },
+  { input: "where is the polling center?", expected: "POLLING_BOOTH_FIND" },
+  { input: "help me", expected: "GENERAL_HELP" }
 ];
 
 intentTests.forEach(t => {

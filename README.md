@@ -35,9 +35,10 @@ Many potential voters, especially first-time voters, find the election preparati
 5. Location inputs dynamically invoke `mapsService.js` at the `HAS_ID_NO_BOOTH` state boundary exclusively.
 
 ## Google Services Used
-- **Firebase:** Provides persistent state storage and **full chat history recovery** across sessions using Firestore. `saveUserState` and `loadUserState` ensure the user's progress and conversation context are never lost.
+- **Firebase:** Provides persistent state storage, **full chat history recovery**, and **custom event analytics** using Firestore. `saveUserState` and `logEvent` demonstrate robust data handling and user behavior tracking.
 - **Gemini:** Used exclusively for conversational rephrasing of final assistant responses to ensure a natural, varied user experience while strictly maintaining logic boundaries.
 - **Google Maps:** Integrated for dynamic location assistance, providing direct links to **Google Maps Search** for polling booths or government facilities based on user pincode.
+- **Performance Monitoring:** Includes a built-in utility to measure and log execution times for API calls and intent detection, ensuring maximum efficiency.
 
 ## Testing
 - **Basic Tests:** Located in `test/test_basic.js`, using native `console.assert` for zero-dependency validation.
