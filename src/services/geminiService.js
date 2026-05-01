@@ -1,9 +1,11 @@
+import config from '../config/index.js';
+
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // IMPORTANT: Gemini must ONLY rephrase final responses. 
 // Do NOT pass raw user input here, and do NOT allow Gemini to generate logic.
 export async function rephrase(text) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = config.gemini.apiKey;
   
   if (!apiKey) {
     return text;

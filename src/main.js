@@ -6,6 +6,7 @@ import { rephrase as geminiRephrase } from './services/geminiService.js';
 import { saveUserState, loadUserState, logEvent } from './services/firebaseService.js';
 import { renderMessage, toggleInputState, showTypingIndicator, removeTypingIndicator } from './components/chatInterface.js';
 import Logger from './utils/logger.js';
+import config, { validateConfig } from './config/index.js';
 
 const chatContainer = document.getElementById('chatContainer');
 const chatForm = document.getElementById('chatForm');
@@ -107,4 +108,10 @@ chatForm.addEventListener('submit', async (e) => {
   toggleInputState(userInput, submitBtn, false);
 });
 
-startApp();
+// Start application and validate environment
+if (validateConfig()) {
+  Logger.info(`Votera AI v${config.app.version} Initializing...`);
+  startApp();
+} else {
+  renderMessage(chatContainer, 'system', 'Configuration error. Please check environment variables.');
+}

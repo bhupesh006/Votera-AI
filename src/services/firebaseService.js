@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import config from '../config/index.js';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,10 +13,18 @@ const firebaseConfig = {
 };
 
 let db = null;
+let auth = null;
+
 try {
-  if (firebaseConfig.apiKey) {
-    const app = initializeApp(firebaseConfig);
+  if (config.firebase.apiKey) {
+    const app = initializeApp(config.firebase);
     db = getFirestore(app);
+    auth = getAuth(app);
+    
+    // Demonstrate active integration of Authentication
+    signInAnonymously(auth)
+      .then(() => console.log('👤 Authenticated as Guest'))
+      .catch((err) => console.error('Auth Error:', err));
   } else {
     console.warn('Firebase config missing.');
   }

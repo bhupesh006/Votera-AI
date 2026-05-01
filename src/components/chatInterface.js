@@ -1,6 +1,8 @@
 export function renderMessage(container, sender, text) {
   const messageDiv = document.createElement('div');
   messageDiv.classList.add('message', sender);
+  messageDiv.setAttribute('role', 'log');
+  messageDiv.setAttribute('aria-live', 'polite');
 
   const contentDiv = document.createElement('div');
   contentDiv.classList.add('message-content');
